@@ -1,0 +1,11 @@
+# Lemmatisers
+
+from os.path import join, dirname, pardir
+
+import nltk
+
+
+class lemmatiser:
+    def __init__(self, language):
+        if language == "eng":
+            self.model = 

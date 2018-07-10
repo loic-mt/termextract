@@ -1,0 +1,9 @@
+#named entity recognition module
+from designpatterns import Visitor
+
+class NERtagger(Visitor):
+    def __init__(self):
+        print "hello, this is an NER tagger"
+    def parse(text):
+        return []
+

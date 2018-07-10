@@ -1,0 +1,10 @@
+# a count buffer keeps *in memory* counts of domains, documents and terms seen in the corpus
+# until they can be dumped into the database
+
+class :
+    def __init__(self, thispos, thisvalue):
+        self.pos = thispos
+        self.string = thisvalue
+    def __str__(self):
+        return self.pos+"\t"+self.string
+

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo "USAGE : ./parallel /path/to/myfilelist /path/to/mydatabase"
+  else    
+    maxjobs=8
+    cmd="/home/loic/termextract_env/bin/izwi -c /home/loic/myGit/termextract/experiments/rules/chunkrules.en -l eng -f txt -D /home/loic/myGit/termextract/experiments/study_material/classified_modules -D2 /home/loic/myGit/termextract/experiments/study_material/letter_code2dept -t /home/aals/eksperimente/termextract/truecaser.studymat.en -x --logging=INFO "
+
+    submit() {
+	echo $2
+	while true ; do
+	    count=(`jobs -p`)
+	    if [ ${#count[@]} -lt $maxjobs ]; then
+		echo $cmd $1 $2
+		$cmd -I $1 -d $2 &
+		break
+            else
+		sleep 5
+	    fi
+	done
+    }
+
+
+    #source /home/loic/myGit/termextract_env/bin/activate
+
+    while IFS='' read -r line || [[ -n $line ]]; do
+	sqlite3 "$line".db < /home/loic/myGit/termextract/database/myschema.sql
+	submit $line "$line".db
+    done < "$1"
+
+fi
+
+
+

@@ -1,0 +1,10 @@
+import database
+import designpattenrs
+
+class exporter(Visitor):
+    def __init__(self,domain,nbsamples):
+        self.domain = domain
+        self.nbsamples = nbsamples
+
+    def visit(self, thisDB):
+        

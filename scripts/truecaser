@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+import sys
+from izwi.exception import ArgumentException
+
+from izwi import truecasercmd
+
+def main(argv):
+    parser = truecasercmd.get_truecaser_argparser()
+    try:
+        args = parser.parse_args(argv)
+        truecasercmd.truecaser_main(args)
+    except ArgumentException as e:
+        parser.error(e)
+#    except Exception as e:
+#        print("Fatal Error %s %s" % (type(e), e))
+#        exit(1)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

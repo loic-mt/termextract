@@ -1,0 +1,47 @@
+import re
+import sys
+import operator
+import codecs
+
+def translate_sentence_into_indices(freqmap,indexmap,curindex,line):
+    indexedsent = ""
+    word = re.split(' ',line)
+    for k in range(0,len(word)):
+        w = word[k]
+        if w in indexmap:
+            freqmap[w] += 1
+            indexedsent += str(indexmap[w])
+        else:
+            curindex += 1
+            indexmap[w] = curindex
+            freqmap[w] += 1
+            indexedsent += str(curindex)
+        if k < (len(word)-1):
+            indexedsent += " "
+
+with         
+
+sorted_voc = sorted(vocab.items(), key=operator.itemgetter(1), reverse=True)
+
+countindex = 1
+print str(countindex)+"\tUNK\t0"
+
+for svoc in sorted_voc:
+    countindex += 1
+    print str(countindex)+"\t"+svoc[0]+"\t"+str(svoc[1])
+srcindex = {}
+tgtindex = {}
+srcindexcount = 1
+tgtindexcount = 1
+srcfreq = {}
+tgtfreq = {}
+srcfreq["UNK"] = 0
+tgtfreq["UNK"] = 0
+srcfile = filestem+"."+src
+tgtfile = filestem+"."+tgt
+with open(srcfile, "r", "utf-8") as srcfilehandler, open(tgtfile, "r", "utf-8") as tgtfilehandler:
+    for srcline, tgtline in zip(srcfilehandler, tgtfilehandler):
+        srcline = srcline.rstrip()
+        tgtline = tgtline.rstrip()
+        print "1"
+        print translate_sentence

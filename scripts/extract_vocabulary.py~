@@ -1,0 +1,23 @@
+import re
+import sys
+import operator
+
+vocab = {}
+with sys.stdin as f:
+    for line in f:
+        line = line.rstrip()
+        word = re.split(' ',line)
+        for w in word:
+            if w in vocab:
+                vocab[w] += 1
+            else:
+                vocab[w] = 1
+
+sorted_voc = sorted(vocab.items(), key=operator.itemgetter(1), reverse=True)
+
+countindex = 1
+print str(countindex)+"\tUNK\t0"
+
+for svoc in sorted_voc:
+    countindex += 1
+    print str(countindex)+"\t"+svoc[0]+"\t"+str(svoc[1])

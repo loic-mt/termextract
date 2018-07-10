@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo "USAGE : ./parallel /path/to/myfilelist /path/to/mytargetdir"
+  else    
+    maxjobs=4
+    cmd="nice /home/aals/sagteware/cleaner_pdf --lexicon /usr/share/dict/words -o "
+
+    submit() {
+	while true ; do
+	    count=(`jobs -p`)
+	    if [ ${#count[@]} -lt $maxjobs ]; then
+		myfile=$1
+		targetdir=$2
+		targetfile=$targetdir/${myfile//\//__}.txt
+		echo $targetfile
+		
+		$cmd $targetfile $myfile 2> /dev/null &
+		break
+            else
+		sleep 0.1
+	    fi
+	done
+    }
+
+
+    #source /home/loic/myGit/termextract_env/bin/activate
+
+    while IFS='' read -r line || [[ -n $line ]]; do
+	submit $line $2
+    done < "$1"
+
+fi
+
+
+

@@ -1,0 +1,5 @@
+CREATE INDEX tintermdomain on "TERM_IN_DOMAIN" ("TERM_CODE");
+CREATE INDEX dintermdomain on "TERM_IN_DOMAIN" ("DOMAIN_CODE");
+CREATE INDEX tintermdoc on "TERM_IN_DOCUMENT" ("TERM_CODE");
+CREATE INDEX docintermdoc on "TERM_IN_DOCUMENT" ("DOCUMENT_CODE");
+;

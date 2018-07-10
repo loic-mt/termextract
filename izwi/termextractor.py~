@@ -1,0 +1,81 @@
+import re
+
+import nltk
+from nltk.tokenize.treebank import TreebankWordTokenizer
+
+import documentfilter
+from warnings import warn
+
+from designpatterns import Visitor
+from izwi import cleaner
+from izwi import ner
+from izwi.postagger import pos_tagger
+import truecaser
+
+class term:
+    def __init__(self, thispos, thisvalue):
+        self.pos = thispos
+        self.string = thisvalue
+    def __str__(self):
+        return self.pos+"\t"+self.string
+
+    def __unicode__(self):
+        return u"%s\t%s" % (self.pos, self.string)
+
+    def get_pos(self):
+        return self.pos
+    def get_string(self):
+        return self.string
+
+
+def _get_username(email_address):
+    return email_address[:email_address.find('@')]
+
+
+# based on http://emailregex.com/
+email_re = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
+
+word_tokenize = TreebankWordTokenizer().tokenize
+
+class termExtractor(Visitor):
+    def __init__(self, language, chunkrulefile,truecaserfile = None):
+        self.language = language
+        self.pos_tagger = pos_tagger(language)
+        with open (chunkrulefile, "r") as myfile:
+            self.grammar = myfile.read()
+        self.terms = []
+        self.emails = []
+        if (truecaserfile == None):
+            self.truecaser = None
+        else:
+            self.truecaser = truecaser.truecaser()
+            self.truecaser.load_model(truecaserfile)   
+        
+    def visit(self, thisDocument):
+        warn("TERM EXTRACTION STARTS...")
+        cp = nltk.RegexpParser(self.grammar)
+        for par in thisDocument.get_paragraphs():
+            self.emails.extend(email_re.findall(par))
+            sentences = nltk.sent_tokenize(par)
+            sentences = [word_tokenize(sent) for sent in sentences]
+            if (self.truecaser):
+                sentences = [self.truecaser.truecase_alltokens(sent) for sent in sentences]
+            else:
+                # just lowercase everything
+                sentences = [[w.lower() for w in sent] for sent in sentences]
+            sentences = [self.pos_tagger.tag(sent) for sent in sentences]
+            #myner = ner.NERtagger()
+            #named_entities = myner.parse(sentences)
+            for sentence in sentences:
+                result = cp.parse(sentence)
+                for subtree in result.subtrees():
+                    if subtree.label() == 'NP':
+                        value = u" ".join(x[0] for x in subtree.leaves())
+                        if (not cleaner.is_possible_term(value)):
+                            continue
+                        newterm = term("NP", cleaner.normalize(value, self.language))
+                        self.terms.append(newterm)
+
+    def get_terms(self):
+        usernames = set(_get_username(x) for x in self.emails)
+        return filter(lambda x: x.get_string() not in usernames, self.terms)

@@ -1,0 +1,19 @@
+import database
+
+class termScorer:
+    __init__
+    def add_score_to_all_terms(db):
+        opendb
+        nbDomainsTotal
+        for t in terms:
+            add_score_to_term(id)
+    def add_score_to_term(id,nbDomainsTotal):
+        
+        termDomains
+        nbTermDomains
+        for d in termDomains:
+            nbDomainDocs
+            termDomainFreq
+            nbTermDocs
+            relevance = score_term(termDomainFreq,nbTermDocs,nbDomainDocs,nbDomainsTotal,nbTermDomains)
+            

@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+# command line filtering, for external data
+# input arguments are : filestem src tgt {lemmatise : True, lowercase : True}  [ last argument is a dict containing the flags: lemmatise, lowercase and more]
+# Ex : python izwi/bitext_filter.py autshumato.eng-zul eng zul "{'lemmatise' : False, 'lowercase' : True}"
+# two files (lines aligned): filestem.src and filestem.tgt will be read
+# outputs a tabulated (src, tgt) parallel corpus
+
+import sys
+import ast
+import codecs
+import logging
+from itertools import izip
+
+from izwi.documentfilter import sentence
+from izwi.aligner import sentence_level_bitext
+from izwi.bitext_filter import sentence_level_bitext_filter
+
+def main(argv):
+    logging.basicConfig(level=1)
+    corpusstem = sys.argv[1]
+    src = sys.argv[2]
+    tgt = sys.argv[3]
+    flag = {'lemmatise' : False, 'lowercase' : False, 'length_cutoff' : False}
+    flag = ast.literal_eval(sys.argv[4])
+    srcfile = corpusstem+"."+src
+    tgtfile = corpusstem+"."+tgt
+    
+    myfilter = sentence_level_bitext_filter(src, tgt, flag['lemmatise'], flag['lowercase'])
+    sbt = sentence_level_bitext(None, flag['length_cutoff'])
+    logging.info("LOADING CORPUS")
+    nlines_read_total = 0
+    nlines_read = 0
+    with codecs.open(srcfile, "r", encoding="utf-8") as srcfilehandler, \
+      codecs.open(tgtfile, "r", encoding="utf-8") as tgtfilehandler:
+         for srcline, tgtline in izip(srcfilehandler, tgtfilehandler):
+             srcline = srcline.rstrip()
+             tgtline = tgtline.rstrip()
+             src_sentence = sentence(srcline, 0)
+             tgt_sentence = sentence(tgtline, 0)
+             sbt.add_sentence_pair((src_sentence, tgt_sentence))
+             nlines_read += 1
+             if nlines_read>=100:
+                 nlines_read_total += nlines_read
+                 logging.info("FILTERING CORPUS")
+                 myfilter.apply(sbt)
+                 logging.info("DUMPING CORPUS, LINES PROCESSED="+str(nlines_read_total))
+                 sbt.dump()
+                 sbt = sentence_level_bitext(None, flag['length_cutoff'])
+                 nlines_read = 0
+    if nlines_read>0:
+        nlines_read_total += nlines_read
+        logging.info("FILTERING CORPUS")
+        myfilter.apply(sbt)
+        logging.info("DUMPING CORPUS, LINES PROCESSED="+str(nlines_read_total))
+        sbt.dump()
+        
+if __name__ == "__main__":
+    main(sys.argv[1:])
